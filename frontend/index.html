@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>教授数据库</title>
+</head>
+<body>
+  <h1>教授数据库</h1>
+
+  <h2>添加教授信息</h2>
+  <form id="addForm">
+    <input name="university" placeholder="学校名"><br>
+    <input name="faculty" placeholder="研究科"><br>
+    <input name="professor_name" placeholder="教授名"><br>
+    <input name="lab_name" placeholder="实验室"><br>
+    <input name="title" placeholder="职称"><br>
+    <input name="keywords" placeholder="研究关键词"><br>
+    <input name="evaluation" placeholder="教授评价"><br>
+    <input name="student_contact" placeholder="联系过的学生"><br>
+    <button type="submit">提交</button>
+  </form>
+
+  <h2>搜索教授</h2>
+  <input id="searchInput" placeholder="输入关键词">
+  <button onclick="search()">搜索</button>
+  <ul id="result"></ul>
+
+  <script>
+    const form = document.getElementById('addForm');
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      await fetch('/api/professors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      alert("提交成功！");
+      form.reset();
+    };
+
+    async function search() {
+      const q = document.getElementById('searchInput').value;
+      const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+      const data = await res.json();
+      const ul = document.getElementById('result');
+      ul.innerHTML = '';
+      data.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.professor_name}（${p.lab_name} / ${p.university}）`;
+        ul.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
